@@ -1,8 +1,8 @@
-# Dockerfile para NestJS Backend - CLEAN BUILD v3.0
+# Dockerfile para NestJS Backend - CLEAN BUILD v3.1
 FROM node:18-alpine
 
-# Instalar dependencias del sistema
-RUN apk add --no-cache postgresql-client wget curl
+# Instalar dependencias del sistema incluyendo OpenSSL
+RUN apk add --no-cache postgresql-client wget curl openssl openssl-dev
 
 # Crear directorio de trabajo
 WORKDIR /app
@@ -22,10 +22,13 @@ RUN npx prisma generate
 # Copiar código fuente
 COPY . .
 
-# Construir aplicación
+# Construir aplicación NestJS
 RUN npm run build
 
-# Limpiar dependencias de desarrollo
+# Verificar que el build se completó
+RUN ls -la dist/ && ls -la dist/main.js || echo "Build failed - main.js not found"
+
+# Limpiar dependencias de desarrollo DESPUÉS de verificar el build
 RUN npm ci --only=production && npm cache clean --force
 
 # Exponer puerto
@@ -42,7 +45,14 @@ if [ -z \"$DATABASE_URL\" ]; then \
   exit 1; \
 fi && \
 echo '✅ DATABASE_URL configurada' && \
+echo '📁 Verificando archivos de build...' && \
+ls -la dist/ && \
+if [ ! -f dist/main.js ]; then \
+  echo '❌ ERROR: dist/main.js no encontrado'; \
+  exit 1; \
+fi && \
+echo '✅ Build verificado correctamente' && \
 echo '📦 Ejecutando migraciones de Prisma...' && \
 (npx prisma migrate deploy || echo '⚠️ Migraciones fallaron, continuando...') && \
 echo '🎯 Iniciando servidor NestJS en puerto 3000...' && \
-node dist/main"]
+node dist/main.js"]
