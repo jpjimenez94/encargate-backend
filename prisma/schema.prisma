@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CLIENTE)
+  avatar    String?
+  phone     String?
+  location  String?
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  orders    Order[]
+  reviews   Review[]
+  favorites Favorite[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String @id
+  name        String
+  icon        String
+  color       String
+  description String
+  services    String[]
+
+  // Relaciones
+  encargados          Encargado[]
+  orders              Order[]
+  encargadoCategories EncargadoCategory[]
+
+  @@map("categories")
+}
+
+model Encargado {
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
+  password     String
+  avatar       String?
+  location     String
+  verified     Boolean @default(false)
+  service      String
+  categoryId   String  // Mantener para compatibilidad
+  price        Float
+  priceMin     Float
+  priceMax     Float
+  rating       Float   @default(0)
+  reviewsCount Int     @default(0)
+  experience   String
+  description  String
+  services     String[]
+  available    Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relaciones
+  category           Category              @relation(fields: [categoryId], references: [id])
+  orders             Order[]
+  reviews            Review[]
+  favorites          Favorite[]
+  encargadoCategories EncargadoCategory[]
+
+  @@map("encargados")
+}
+
+model EncargadoCategory {
+  id          String @id @default(uuid())
+  encargadoId String
+  categoryId  String
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  encargado Encargado @relation(fields: [encargadoId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([encargadoId, categoryId])
+  @@map("encargado_categories")
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  encargadoId String
+  categoryId  String
+  service     String
+  description String?
+  address     String
+  date        DateTime
+  time        String
+  status      OrderStatus @default(PENDING)
+  price       Float
+  paymentMethod String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relaciones
+  user      User      @relation(fields: [userId], references: [id])
+  encargado Encargado @relation(fields: [encargadoId], references: [id])
+  category  Category  @relation(fields: [categoryId], references: [id])
+  review    Review?
+
+  @@map("orders")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  orderId   String   @unique
+  userId    String
+  encargadoId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  order     Order     @relation(fields: [orderId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  encargado Encargado @relation(fields: [encargadoId], references: [id])
+
+  @@map("reviews")
+}
+
+model Promotion {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String
+  description String
+  discount    Int
+  category    String
+  color       String
+  gradient    String
+  active      Boolean  @default(true)
+  validUntil  DateTime
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("promotions")
+}
+
+model Favorite {
+  id          String   @id @default(uuid())
+  userId      String
+  encargadoId String
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  user      User      @relation(fields: [userId], references: [id])
+  encargado Encargado @relation(fields: [encargadoId], references: [id])
+
+  @@unique([userId, encargadoId])
+  @@map("favorites")
+}
+
+enum Role {
+  CLIENTE
+  ENCARGADO
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
