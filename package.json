@@ -24,7 +24,8 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:seed-if-empty": "ts-node prisma/seed-if-empty.ts",
-    "db:check": "ts-node prisma/check-data.ts"
+    "db:check": "ts-node prisma/check-data.ts",
+    "postdeploy": "npx prisma migrate deploy && npx prisma db seed"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -89,5 +90,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
