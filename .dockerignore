@@ -1,7 +1,5 @@
 node_modules
 npm-debug.log
-Dockerfile
-.dockerignore
 .git
 .gitignore
 README.md
@@ -11,6 +9,6 @@ coverage
 .nyc_output
 .coverage
 .coverage/
-dist
 .next
 .vercel
+start.sh

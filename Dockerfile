@@ -1,5 +1,8 @@
-# Dockerfile para NestJS Backend - CLEAN BUILD v3.1
+# Dockerfile para NestJS Backend - FORCE REBUILD v4.0
 FROM node:18-alpine
+
+# Cache buster - force rebuild
+COPY FORCE_REBUILD /tmp/force_rebuild
 
 # Instalar dependencias del sistema incluyendo OpenSSL
 RUN apk add --no-cache postgresql-client wget curl openssl openssl-dev
