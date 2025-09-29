@@ -27,6 +27,10 @@ RUN npm run build
 # Limpiar devDependencies después del build
 RUN npm ci --only=production && npm cache clean --force
 
+# Copiar script de inicio y dar permisos ANTES de cambiar usuario
+COPY start.sh ./
+RUN chmod +x start.sh
+
 # Crear usuario no-root
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nestjs -u 1001
@@ -41,10 +45,6 @@ EXPOSE 3000
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
-
-# Copiar script de inicio
-COPY start.sh ./
-RUN chmod +x start.sh
 
 # Comando de inicio
 CMD ["./start.sh"]
