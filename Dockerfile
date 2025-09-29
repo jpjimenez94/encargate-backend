@@ -1,8 +1,8 @@
-# Dockerfile para NestJS Backend
+# Dockerfile para NestJS Backend - v2.0
 FROM node:18-alpine
 
 # Instalar dependencias del sistema
-RUN apk add --no-cache postgresql-client
+RUN apk add --no-cache postgresql-client wget
 
 WORKDIR /app
 
