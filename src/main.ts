@@ -8,7 +8,9 @@ async function bootstrap() {
 
   // Configurar CORS
   app.enableCors({
-    origin: true, // Permite todas las conexiones localhost en desarrollo
+    origin: process.env.NODE_ENV === 'production' 
+      ? [process.env.FRONTEND_URL || 'https://encargate-app.vercel.app']
+      : true,
     credentials: true,
   });
 
@@ -36,10 +38,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   
-  console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
-  console.log(`📚 Documentación disponible en http://localhost:${port}/api/docs`);
+  console.log(`🚀 Servidor corriendo en http://0.0.0.0:${port}`);
+  console.log(`📚 Documentación disponible en http://0.0.0.0:${port}/api/docs`);
+  console.log(`❤️ Health check en http://0.0.0.0:${port}/api/health`);
 }
 
 bootstrap();
