@@ -27,17 +27,9 @@ RUN npm run build
 # Limpiar devDependencies después del build
 RUN npm ci --only=production && npm cache clean --force
 
-# Copiar script de inicio y dar permisos ANTES de cambiar usuario
-COPY start.sh ./
-RUN chmod +x start.sh
-
 # Crear usuario no-root
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nestjs -u 1001
-
-# Cambiar ownership de archivos
-RUN chown -R nestjs:nodejs /app
-USER nestjs
 
 # Exponer puerto
 EXPOSE 3000
@@ -46,5 +38,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-# Comando de inicio
-CMD ["./start.sh"]
+# Comando de inicio directo (sin script)
+CMD ["sh", "-c", "echo '🚀 Iniciando aplicación...' && if [ -z \"$DATABASE_URL\" ]; then echo '❌ DATABASE_URL no configurada'; exit 1; fi && echo '✅ DATABASE_URL configurada' && echo '📦 Ejecutando migraciones...' && npx prisma migrate deploy || echo '⚠️ Migraciones fallaron, continuando...' && echo '🎯 Iniciando servidor...' && node dist/main"]
