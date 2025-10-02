@@ -1,6 +1,6 @@
 import { IsOptional, IsEnum, IsString, IsNumber, IsDateString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, PaymentStatus } from '@prisma/client';
 
 export class UpdateOrderDto {
   @ApiProperty({ required: false, enum: OrderStatus })
@@ -42,4 +42,19 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsString()
   paymentMethod?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  paymentIntentId?: string;
+
+  @ApiProperty({ required: false, enum: PaymentStatus })
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  paymentStatus?: PaymentStatus;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  transactionId?: string;
 }

@@ -83,24 +83,35 @@ model EncargadoCategory {
 }
 
 model Order {
-  id            String      @id @default(uuid())
-  userId        String
-  encargadoId   String
-  categoryId    String
-  service       String
-  description   String?
-  address       String
-  date          DateTime
-  time          String
-  status        OrderStatus @default(PENDING)
-  price         Float
-  paymentMethod String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  category      Category    @relation(fields: [categoryId], references: [id])
-  encargado     Encargado   @relation(fields: [encargadoId], references: [id])
-  user          User        @relation(fields: [userId], references: [id])
-  review        Review?
+  id                String        @id @default(uuid())
+  userId            String
+  encargadoId       String
+  categoryId        String
+  service           String
+  description       String?
+  address           String
+  date              DateTime
+  time              String
+  status            OrderStatus   @default(PENDING)
+  price             Float
+  paymentMethod     String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  paymentIntentId   String?
+  transactionId     String?
+  paymentStatus     PaymentStatus @default(PENDING)
+  platformEarnings  Float?
+  platformMargin    Float?
+  providerEarnings  Float?
+  servicePrice      Float?
+  totalPrice        Float?
+  wompiCost         Float?
+  wompiCostClient   Float?
+  wompiCostProvider Float?
+  category          Category      @relation(fields: [categoryId], references: [id])
+  encargado         Encargado     @relation(fields: [encargadoId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+  review            Review?
 
   @@map("orders")
 }
@@ -151,9 +162,26 @@ model Favorite {
   @@map("favorites")
 }
 
+model Banner {
+  id        String   @id
+  icon      String
+  title     String
+  headline  String
+  subtitle  String
+  gradient  String
+  image     String
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banners")
+}
+
 enum Role {
   CLIENTE
   ENCARGADO
+  ADMIN
 }
 
 enum OrderStatus {
@@ -162,4 +190,11 @@ enum OrderStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }

@@ -55,6 +55,7 @@ async function main() {
       create: {
         id: `banner-${banner.order}`,
         ...banner,
+        updatedAt: new Date(),
       },
     });
     console.log(`✅ Banner creado: ${banner.title}`);

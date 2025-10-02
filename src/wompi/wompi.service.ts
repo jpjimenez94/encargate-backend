@@ -42,8 +42,8 @@ export class WompiService {
 
   /**
    * Obtiene los tokens de aceptación completos (acceptance_token y accept_personal_auth)
-   * Según documentación Wompi: GET /merchants/:public_key
-   * Estos tokens son OBLIGATORIOS para crear transacciones y fuentes de pago
+   * Estos tokens son OBLIGATORIOS para todas las transacciones.
+   * Se obtienen desde: GET /v1/merchants/:public_key
    */
   async getAcceptanceTokens(): Promise<{
     acceptance_token: string;
@@ -54,17 +54,17 @@ export class WompiService {
     try {
       this.logger.log('🔐 Obteniendo tokens de aceptación de Wompi...');
       
-      const response = await fetch(`${this.apiUrl}/merchants/${this.publicKey}`, {
-        headers: {
-          'Authorization': `Bearer ${this.publicKey}`,
-        },
-      });
+      // Obtener tokens del endpoint oficial de Wompi
+      const response = await fetch(`${this.apiUrl}/merchants/${this.publicKey}`);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        this.logger.error(`❌ Error ${response.status} obteniendo tokens:`, errorData);
+        throw new Error(`No se pudieron obtener tokens de aceptación (${response.status})`);
       }
 
       const data = await response.json();
+      this.logger.log('📥 Respuesta de Wompi merchants:', JSON.stringify(data, null, 2));
       
       // Extraer ambos tokens según la estructura de Wompi
       const acceptanceToken = data.data?.presigned_acceptance?.acceptance_token;
@@ -72,12 +72,12 @@ export class WompiService {
       const personalAuthToken = data.data?.presigned_personal_data_auth?.acceptance_token;
       const personalAuthPermalink = data.data?.presigned_personal_data_auth?.permalink;
       
-      if (!acceptanceToken) {
-        throw new Error('No se pudo obtener acceptance_token de Wompi');
-      }
-      
-      if (!personalAuthToken) {
-        throw new Error('No se pudo obtener accept_personal_auth de Wompi');
+      if (!acceptanceToken || !personalAuthToken) {
+        this.logger.error('❌ Tokens incompletos en respuesta:', {
+          hasAcceptanceToken: !!acceptanceToken,
+          hasPersonalAuthToken: !!personalAuthToken
+        });
+        throw new Error('Los tokens de aceptación están incompletos');
       }
       
       this.logger.log('✅ Tokens de aceptación obtenidos correctamente');
@@ -89,8 +89,8 @@ export class WompiService {
         personal_auth_permalink: personalAuthPermalink,
       };
     } catch (error) {
-      this.logger.error('❌ Error getting acceptance tokens:', error);
-      throw error;
+      this.logger.error('❌ Error crítico obteniendo tokens de aceptación:', error.message);
+      throw error; // Lanzar error para que el método que llama maneje el fallo
     }
   }
 
@@ -157,7 +157,7 @@ export class WompiService {
         });
         
         try {
-          // Obtener ambos tokens de aceptación (OBLIGATORIO según Wompi)
+          // Obtener tokens de aceptación (OBLIGATORIO)
           const tokens = await this.getAcceptanceTokens();
           const signature = await this.generateIntegritySignature(
             finalReference,
@@ -293,7 +293,7 @@ export class WompiService {
       // Generar referencia única para PSE
       const finalReference = this.generateUniqueReference('PSE');
       
-      // Obtener ambos tokens de aceptación
+      // Obtener tokens de aceptación (OBLIGATORIO)
       const tokens = await this.getAcceptanceTokens();
       const signature = await this.generateIntegritySignature(
         finalReference,
@@ -389,7 +389,7 @@ export class WompiService {
       
       this.logger.log('🔴 Iniciando transacción Bancolombia:', { ...paymentData, reference: finalReference });
       
-      // Obtener ambos tokens de aceptación
+      // Obtener tokens de aceptación (OBLIGATORIO)
       const tokens = await this.getAcceptanceTokens();
       const signature = await this.generateIntegritySignature(
         finalReference,
