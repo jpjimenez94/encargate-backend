@@ -9,7 +9,11 @@ async function bootstrap() {
   // Configurar CORS
   app.enableCors({
     origin: process.env.NODE_ENV === 'production' 
-      ? [process.env.FRONTEND_URL || 'https://encargate-app.vercel.app']
+      ? [
+          process.env.FRONTEND_URL || 'https://encargate-frontend.vercel.app',
+          'https://encargate-frontend.vercel.app',
+          'https://encargate-app.vercel.app'
+        ]
       : true,
     credentials: true,
   });
