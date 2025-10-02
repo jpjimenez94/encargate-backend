@@ -25,6 +25,7 @@ async function main() {
       color: '#8B5CF6',
       description: 'Servicios para el hogar',
       services: ['Limpieza', 'Plomería', 'Electricidad', 'Carpintería'],
+      imageUrl: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'belleza',
@@ -33,6 +34,7 @@ async function main() {
       color: '#F97316',
       description: 'Servicios de belleza y cuidado personal',
       services: ['Peluquería', 'Manicure', 'Masajes', 'Estética'],
+      imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'educacion',
@@ -41,6 +43,7 @@ async function main() {
       color: '#3B82F6',
       description: 'Servicios educativos y tutorías',
       services: ['Tutorías', 'Clases particulares', 'Idiomas'],
+      imageUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'cuidado',
@@ -49,6 +52,7 @@ async function main() {
       color: '#EAB308',
       description: 'Cuidado de niños y bebés',
       services: ['Niñera', 'Cuidado de bebés', 'Actividades infantiles'],
+      imageUrl: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'tecnologia',
@@ -57,6 +61,7 @@ async function main() {
       color: '#EF4444',
       description: 'Servicios tecnológicos',
       services: ['Reparación PC', 'Instalación software', 'Soporte técnico'],
+      imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'profesionales',
@@ -65,6 +70,7 @@ async function main() {
       color: '#22C55E',
       description: 'Servicios profesionales',
       services: ['Contabilidad', 'Legal', 'Consultoría'],
+      imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'mascotas',
@@ -73,6 +79,7 @@ async function main() {
       color: '#14B8A6',
       description: 'Cuidado de mascotas',
       services: ['Veterinaria', 'Peluquería canina', 'Paseo de perros'],
+      imageUrl: 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=100&h=100&fit=crop&auto=format',
     },
     {
       id: 'mas',
@@ -81,6 +88,7 @@ async function main() {
       color: '#6B7280',
       description: 'Otros servicios',
       services: ['Otros'],
+      imageUrl: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=100&h=100&fit=crop&auto=format',
     },
   ];
 
@@ -88,9 +96,26 @@ async function main() {
     await prisma.category.create({ data: category });
   }
 
+  // Crear usuario administrador
+  console.log('👑 Creando usuario administrador...');
+  const hashedPassword = await bcrypt.hash('123456', 12);
+  
+  const adminUser = await prisma.user.create({
+    data: {
+      name: 'Administrador',
+      email: 'admin@encargate.com',
+      password: hashedPassword,
+      role: Role.ADMIN,
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face&auto=format',
+      phone: '+57 300 000 0000',
+      location: 'Bogotá D.C.',
+      verified: true,
+    },
+  });
+  console.log(`✅ Admin creado: ${adminUser.email}`);
+
   // Crear usuarios cliente
   console.log('👤 Creando usuarios cliente...');
-  const hashedPassword = await bcrypt.hash('123456', 12);
   
   const users = [
     {

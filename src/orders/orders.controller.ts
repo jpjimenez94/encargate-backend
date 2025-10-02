@@ -93,6 +93,47 @@ export class OrdersController {
     return this.ordersService.update(id, updateOrderDto);
   }
 
+  @Get(':id/transaction')
+  @ApiOperation({ summary: 'Obtener transacción del pedido' })
+  @ApiResponse({ status: 200, description: 'Transacción encontrada' })
+  @ApiResponse({ status: 404, description: 'Pedido o transacción no encontrada' })
+  getOrderTransaction(@Param('id') id: string) {
+    return this.ordersService.getOrderTransaction(id);
+  }
+
+  @Post(':id/confirm-payment')
+  @ApiOperation({ summary: 'Confirmar pago del pedido' })
+  @ApiResponse({ status: 200, description: 'Pago confirmado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Pedido no encontrado' })
+  confirmPayment(
+    @Param('id') id: string,
+    @Body() body: { transactionId?: string }
+  ) {
+    return this.ordersService.confirmPayment(id, body.transactionId);
+  }
+
+  @Post(':id/confirm-cash-payment')
+  @UseGuards(RolesGuard)
+  @Roles(Role.CLIENTE)
+  @ApiOperation({ summary: 'Confirmar pago en efectivo del pedido' })
+  @ApiResponse({ status: 200, description: 'Pago en efectivo confirmado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Pedido no encontrado' })
+  confirmCashPayment(@Param('id') id: string) {
+    return this.ordersService.confirmCashPayment(id);
+  }
+
+  @Post(':id/cancel-payment')
+  @ApiOperation({ summary: 'Cancelar pedido y pago' })
+  @ApiResponse({ status: 200, description: 'Pedido y pago cancelados exitosamente' })
+  @ApiResponse({ status: 404, description: 'Pedido no encontrado' })
+  @ApiResponse({ status: 400, description: 'No se puede cancelar el pedido' })
+  cancelOrderAndPayment(
+    @Param('id') id: string,
+    @Body() body: { transactionId?: string }
+  ) {
+    return this.ordersService.cancelOrderAndPayment(id, body.transactionId);
+  }
+
   @Post(':id/review')
   @UseGuards(RolesGuard)
   @Roles(Role.CLIENTE)
@@ -114,5 +155,12 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'Pedido no encontrado' })
   remove(@Param('id') id: string) {
     return this.ordersService.remove(id);
+  }
+
+  @Post('recalculate-commissions')
+  @ApiOperation({ summary: 'Recalcular comisiones de todos los pedidos completados' })
+  @ApiResponse({ status: 200, description: 'Comisiones recalculadas exitosamente' })
+  recalculateCommissions() {
+    return this.ordersService.recalculateAllCommissions();
   }
 }

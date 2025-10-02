@@ -9,6 +9,13 @@ import { OrdersModule } from './orders/orders.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { PaymentsModule } from './payments/payments.module';
+import { WompiModule } from './wompi/wompi.module';
+import { BannersModule } from './banners/banners.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
+import { PricingModule } from './pricing/pricing.module';
+import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -25,6 +32,13 @@ import { AppController } from './app.controller';
     ReviewsModule,
     PromotionsModule,
     FavoritesModule,
+    PaymentsModule,
+    WompiModule,
+    BannersModule,
+    NotificationsModule,
+    WebhooksModule,
+    PricingModule,
+    AdminModule,
   ],
   controllers: [AppController],
 })

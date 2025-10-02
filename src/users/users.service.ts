@@ -83,9 +83,16 @@ export class UsersService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    return this.prisma.user.update({
+    // Mapear avatarUrl a avatar si existe
+    const { avatarUrl, ...rest } = updateUserDto as any;
+    const dataToUpdate = {
+      ...rest,
+      ...(avatarUrl && { avatar: avatarUrl }),
+    };
+
+    const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: dataToUpdate,
       select: {
         id: true,
         name: true,
@@ -99,6 +106,12 @@ export class UsersService {
         updatedAt: true,
       },
     });
+
+    // Mapear avatar a avatarUrl para el frontend
+    return {
+      ...updatedUser,
+      avatarUrl: updatedUser.avatar,
+    };
   }
 
   async remove(id: string) {
